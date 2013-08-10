@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoTransfer.cs" />
     <Compile Include="BTCTC_MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
