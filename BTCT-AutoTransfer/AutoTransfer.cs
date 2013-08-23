@@ -74,16 +74,47 @@ namespace BTCTC
 
     class TransferRule
     {
+        // BTCTLink for outgoing transfers
         public BTCTLink OutLink { get; set; }
 
+        // Assets to receive and send. One output asset per
+        // instance of TransferRule. For 1 -> n transfers (n > 1),
+        // create multiple instances of TransferRule.
         public string Input { get; set; }
         public string Output { get; set; }
 
+        // Minimum number of units before an conversion is processed.
+        // Any incoming transfers below the minimum is returned to sender.
         public int MinInput { get; set; }
+
+        // Transfer-fee (in number of units) to be deducted. FeeInput specifies
+        // whether the fee is deducted from the input or output.
+        public int Fee { get; set; }
         public bool FeeInput { get; set; }
 
         public int Multiplier { get; set; }
         public bool MultInput { get; set; }
+        
+        // Examples:
+        // 100 shares of A can be exchanged for 1 share of B. A fixed fee of 1
+        // share of A applies.
+        // Input = A;
+        // Output = B;
+        // MinInput = 101;
+        // Fee = 1;
+        // FeeInput = true;
+        // Multiplier = 100;
+        // MultInput = false;
+        //
+        // 1 share of A can be exchanged for 100 shares of B. A fixed fee of 1
+        // share of B applies.
+        // Input = A;
+        // Output = B;
+        // MinInput = 1;
+        // Fee = 1;
+        // FeeInput = false;
+        // Multiplier = 100;
+        // MultInput = true;
     }
 
     class AutoTransfer
@@ -95,6 +126,7 @@ namespace BTCTC
         private bool _active;
         private BTCTLink _inLink;
         private DateTime _lastUpdate;
+        private System.ComponentModel.ISynchronizeInvoke _syncObj;
 
         private List<TransferRule> _transferRules;
         public bool Active
@@ -122,7 +154,7 @@ namespace BTCTC
                 {
                     StopTimer();
                     _interval = value;
-                    StartTimer();
+                    StartTimer(false, DateTime.Now, _syncObj);
                 }
                 else
                 {
@@ -171,16 +203,62 @@ namespace BTCTC
             _transferRules.Add(t);
         }
 
-        public void Initialize()
+        public void StartTimer(bool customStart, DateTime start, System.ComponentModel.ISynchronizeInvoke s)
         {
-        }
+            if (_inLink.AuthStatus != AuthStatusType.AS_OK)
+            {
+                Log("Not yet authorized." + Environment.NewLine);
+                return;
+            }
+            
+            if (_interval < 120000)
+            {
+                Log("Interval too short, needs to be at least 2 minutes" + Environment.NewLine);
+                return;
+            }
 
-        public void StartTimer()
-        {
+            _timer.Interval = _interval;
+            _timer.SynchronizingObject = s;
+            _syncObj = s;
+            _timer.Elapsed += new ElapsedEventHandler(DoUpdate);
+            _timer.Enabled = true;
+            _active = true;
+
+            if (customStart)
+            {
+                _lastUpdate = start;
+                Log("Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine +
+                    "Starting from custom date/time: " + start.ToString() + Environment.NewLine +
+                    "Running update function to clear back-log" + Environment.NewLine);
+
+                DoUpdate(this, null);
+            }
+            else
+            {
+                TradeHistory t;
+
+                try
+                {
+                    t = _inLink.GetTradeHistory();
+                    _lastUpdate = t.orders[t.orders.Count - 1].dateTime;
+                    Log("Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine
+                        + "Most recent entry in trade history at " + _lastUpdate.ToString() + " (server time)" + Environment.NewLine);
+                }
+                catch (BTCTException ex)
+                {
+                    Log("Error obtaining initial trade history - Timer aborted. Message: " + ex.Message + Environment.NewLine);
+                    StopTimer();
+                    return;
+                }
+            }
         }
 
         public void StopTimer()
         {
+            _timer.Enabled = false;
+            _active = false;
+
+            Log("Auto-transfer stopped at " + DateTime.Now.ToString() + Environment.NewLine);
         }
 
         private bool isTestMode(string username, int num)
@@ -193,6 +271,56 @@ namespace BTCTC
                 }
             }
             return true;
+        }
+
+        private int CalcTransferUnits(TransferRule t, int inUnits)
+        {
+            if (inUnits < t.MinInput)
+            {
+                return 0;
+            }
+
+            int n = inUnits;
+
+            if (t.FeeInput)
+            {
+                n -= t.Fee;
+            }
+            if (t.MultInput)
+            {
+                n *= t.Multiplier;
+            }
+            else
+            {
+                n /= t.Multiplier;
+            }
+            if (!t.FeeInput)
+            {
+                n -= t.Fee;
+            }
+
+            return n;
+        }
+
+        private int CalcReturnUnits(TransferRule t, int inUnits)
+        {
+            if (inUnits < t.MinInput)
+            {
+                return inUnits;
+            }
+            if (t.MultInput)
+            {
+                return 0;
+            }
+
+            int n = inUnits % t.Multiplier;
+
+            if (t.FeeInput)
+            {
+                n -= t.Fee;
+            }
+
+            return n;
         }
 
         private void DoTransfer(string security, int amount, string username, BTCTLink link)
@@ -208,7 +336,7 @@ namespace BTCTC
             Log("TX-OUT: " + amount.ToString() + " x " + security + " -> " + username + Environment.NewLine);
         }
 
-        private void DoUpdate()
+        private void DoUpdate(object sender, ElapsedEventArgs e)
         {
             Log("Update started at " + DateTime.Now.ToString() + Environment.NewLine);
 
@@ -230,37 +358,66 @@ namespace BTCTC
             }
             foreach (Order o in t.orders)
             {
-                if (o.dateTime.CompareTo(_lastUpdate) > 0
-                    && o.orderType == OrderType.OT_TIN)
+                if ((o.dateTime.CompareTo(_lastUpdate) <= 0)
+                    || o.orderType != OrderType.OT_TIN)
                 {
-                    int num = o.amount;
-                    string username = o.transferUser;
-                    Log("TX-IN: " + num.ToString() + " x " + o.security.name + " <- " + username + Environment.NewLine);
+                    continue;
+                }
+                
+                int num = o.amount;
+                string username = o.transferUser;
+                
+                Log("TX-IN: " + num.ToString() + " x " + o.security.name + " <- " + username + Environment.NewLine);
 
-                    foreach (TransferRule tr in _transferRules)
+                foreach (TransferRule tr in _transferRules)
+                {
+                    // Transfered security doesn't match input
+                    if (o.security.name != tr.Input)
                     {
-                        // Transfered security doesn't match input
-                        if (o.security.name != tr.Input)
-                        {
-                            continue;
-                        }
-
-                        // Insufficient quantity transfered - return to sender.
-                        if (num < tr.MinInput)
-                        {
-                            try
-                            {
-                                DoTransfer(tr.Input, num, username, _inLink);
-                            }
-                            catch (BTCTException ex)
-                            {
-                                Log("ERROR: " + ex.Message + Environment.NewLine);
-                            }
-                            continue;
-                        }
-
-
+                        continue;
                     }
+                    
+                    int numTransfer = CalcTransferUnits(tr, num);
+                    int numReturn = CalcReturnUnits(tr, num);
+
+                    string targetUsername = username;
+
+                    // If in and out aren't on the same exchange, query the name-DB
+                    if (_inLink.isBTCT != tr.OutLink.isBTCT)
+                    {
+                        targetUsername = _nameDB.QueryName(username, _inLink.isBTCT);
+                        
+                        // No matching user was found - return all shares
+                        if (targetUsername == "")
+                        {
+                            numTransfer = 0;
+                            numReturn = num;
+                        }
+                    }
+
+                    if (numReturn > 0)
+                    {
+                        try
+                        {
+                            DoTransfer(tr.Input, numReturn, username, _inLink);
+                        }
+                        catch (BTCTException ex)
+                        {
+                            Log("ERROR: " + ex.Message + Environment.NewLine);
+                        }
+                    }
+                    if (numTransfer > 0)
+                    {
+                        try
+                        {
+                            DoTransfer(tr.Output, numTransfer, targetUsername, tr.OutLink);
+                        }
+                        catch (BTCTException ex)
+                        {
+                            Log("ERROR: " + ex.Message + Environment.NewLine);
+                        }
+                    }
+
                 }
             }
 
