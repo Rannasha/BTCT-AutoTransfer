@@ -29,8 +29,7 @@ namespace BTCTC
         public BTCTC_MainWindow()
         {
             InitializeComponent();
-            cbOrderType.SelectedIndex = 0;
-            cbExpiry.SelectedIndex = 0;
+
             OnAuthStatusChanged(null, EventArgs.Empty);
 
             // Change 3rd argument to "false" for LTC-Global
@@ -106,43 +105,6 @@ namespace BTCTC
             textBox1.Text = b.ApiKey;
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Portfolio p;
-            try
-            {
-                p = b.GetPortfolio();
-            }
-            catch (BTCTException ex)
-            {
-               Log("Error getting portfolio. Error-message: " + ex.Message, false);
-                return;
-            }
-
-            Log("User: " + p.username + Environment.NewLine, false);
-            Log("Generated: " + p.lastUpdate.ToString() + Environment.NewLine, false);
-            foreach (SecurityOwned so in p.securities)
-            {
-                Log(so.security.name + " (" + Convert.ToString(so.amount) + ")" + Environment.NewLine, false);
-            }
-            foreach (Order o in p.orders)
-            {
-                switch (o.orderType)
-                {
-                    case OrderType.OT_BUY:
-                        Log("BUY: ", false);
-                        break;
-                    case OrderType.OT_SELL:
-                        Log("SELL: ", false);
-                        break;
-                    case OrderType.OT_UNKNOWN:
-                        Log("UNKNOWN: ", false);
-                        break;
-                }
-                Log(o.security.name + " x " + Convert.ToString(o.amount) + Environment.NewLine, false);
-            }
-        }
-
         private void button4_Click(object sender, EventArgs e)
         {
             b.DeserializeConfig("btct-client.dat");
@@ -153,209 +115,6 @@ namespace BTCTC
         {
             b.ApiKey = textBox1.Text;
             b.SerializeConfig("btct-client.dat");
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-            TradeHistory t = null;
-
-            try
-            {
-                t = b.GetTradeHistory(textBox1.Text);
-            }
-            catch (Exception ex)
-            {
-                Log("Error obtaining trade history: " + ex.Message + Environment.NewLine, false);
-                return;
-            }
-
-            for (int i = 0; i < t.orders.Count; i++)
-            {
-                Log("[" + t.orders[i].dateTime.ToString() + "] ", false);
-                switch (t.orders[i].orderType)
-                {
-                    case OrderType.OT_BUY:
-                        Log("buy ", false);
-                        break;
-                    case OrderType.OT_SELL:
-                        Log("sell ", false);
-                        break;
-                    case OrderType.OT_TIN:
-                        Log("tr-in ", false);
-                        Log("(" + t.orders[i].transferUser + ") ", false);
-                        break;
-                    case OrderType.OT_TOUT:
-                        Log("tr-out ", false);
-                        Log("(" + t.orders[i].transferUser + ") ", false);
-                        break;
-                    default:
-                        Log("unknown ", false);
-                        break;
-                }
-                Log(t.orders[i].amount.ToString() + " x " + t.orders[i].security.name + " @ " + BTCTUtils.SatoshiToString(t.orders[i].price), false);
-                Log(Environment.NewLine, false);
-            }
-
-        }
-
-        private void button8_Click(object sender, EventArgs e)
-        {
-            int id;
-
-            try
-            {
-                id = Convert.ToInt32(tbCancelOrderId.Text);
-            }
-            catch (Exception ex)
-            {
-                Log("Order ID field not a valid number." + Environment.NewLine, false);
-                return;
-            }
-            try
-            {
-                b.CancelOrder(id);
-            }
-            catch (BTCTException ex)
-            {
-                Log("Error cancelling order: " + ex.Message + Environment.NewLine, false);
-            }
-        }
-
-        private void button9_Click(object sender, EventArgs e)
-        {
-            string security = tbSecurity.Text;
-            int amount = 0;
-            double price = 0;
-            try
-            {
-                amount = Convert.ToInt32(tbAmount.Text);
-            }
-            catch (Exception ex)
-            {
-                Log("Invalid input for field 'amount'" + Environment.NewLine, false);
-                amount = -1;
-            }
-            try
-            {
-                price = Convert.ToDouble(tbPrice.Text);
-            }
-            catch (Exception ex)
-            {
-                Log("Invalid input for field 'price'" + Environment.NewLine, false);
-                amount = -1;
-            }
-            OrderType ot;
-            switch (cbOrderType.SelectedIndex)
-            {
-                case 0:
-                    ot = OrderType.OT_BUY;
-                    break;
-                case 1:
-                    ot = OrderType.OT_SELL;
-                    break;
-                default:
-                    ot = OrderType.OT_UNKNOWN;
-                    break;
-            }
-            int expiry = Convert.ToInt32(cbExpiry.Text);
-            if (amount > 0)
-            {
-                try
-                {
-                    b.SubmitOrder(security, amount, BTCTUtils.DoubleToSatoshi(price), ot, expiry);
-                    Log("Order submitted." + Environment.NewLine, false);
-                }
-                catch (BTCTException ex)
-                {
-                    Log(ex.Message + Environment.NewLine, false);
-                }
-            }
-        }
-
-        private void button6_Click_1(object sender, EventArgs e)
-        {
-            DividendHistory dh;
-            try
-            {
-                dh = b.GetDividendHistory(textBox1.Text);
-            }
-            catch (BTCTException ex)
-            {
-                Log("Error obtaining dividend history: " + ex.Message + Environment.NewLine, false);
-                return;
-            }
-
-            foreach (Dividend d in dh.dividends)
-            {
-                Log("[" + d.dateTime.ToString() + "] " + d.security.name + ": " + d.shares.ToString() + " x "
-                        + BTCTUtils.SatoshiToString(d.dividend) + " = " + BTCTUtils.SatoshiToString(d.dividend * d.shares) + Environment.NewLine, false);
-            }
-        }
-
-        private void getAllTickers()
-        {
-            List<Ticker> lt = b.GetTickers();
-
-            foreach (Ticker t in lt)
-            {
-                Log(t.name + " -- " + t.lastQty.ToString() + "@" + BTCTUtils.SatoshiToString(t.last) + Environment.NewLine, false);
-            }
-        }
-
-        private void getTradeHistory()
-        {
-            TradeHistory t = null;
-
-            try
-            {
-                t = b.GetPublicTradeHistory();
-            }
-            catch (Exception ex)
-            {
-                Log("Error obtaining trade history: " + ex.Message + Environment.NewLine, false);
-                return;
-            }
-
-            for (int i = 0; i < t.orders.Count; i++)
-            {
-                Log("[" + t.orders[i].dateTime.ToString() + "] ", false);
-                switch (t.orders[i].orderType)
-                {
-                    case OrderType.OT_BUY:
-                        Log("buy ", false);
-                        break;
-                    case OrderType.OT_SELL:
-                        Log("sell ", false);
-                        break;
-                    case OrderType.OT_TIN:
-                        Log("tr-in ", false);
-                        break;
-                    case OrderType.OT_TOUT:
-                        Log("tr-out ", false);
-                        break;
-                    default:
-                        Log("unknown ", false);
-                        break;
-                }
-                Log(t.orders[i].amount.ToString() + " x " + t.orders[i].security.name + " @ " + BTCTUtils.SatoshiToString(t.orders[i].price), false);
-                Log(Environment.NewLine, false);
-            }
-        }
-
-        private void button9_Click_1(object sender, EventArgs e)
-        {
-            switch (cbGlobalDataSelect.SelectedIndex)
-            {
-                case 2:
-                  // getDividendHistory();
-                    break;
-                case 1:
-                    getTradeHistory();
-                    break;
-                case 0:
-                    getAllTickers();
-                    break;
-            }
         }
 
         #region DMS Auto-Transfer functions
@@ -413,14 +172,14 @@ namespace BTCTC
             }
             try
             {
-                interval = Convert.ToInt32(tbInterval.Text) * 1000 * 60;
+                interval = Convert.ToInt32(tbInterval.Text);
             }
             catch (Exception ex)
             {
                 Log("Invalid number-format in interval-input" + Environment.NewLine, false);
                 return;
             }
-            if (interval < 2)
+            if (interval < 120000)
             {
                 Log("Interval too short, needs to be at least 2 minutes" + Environment.NewLine, false);
                 return;
@@ -444,27 +203,6 @@ namespace BTCTC
                 }
             }
 
-            lbInterval.Enabled = false;
-            tbInterval.Enabled = false;
-            cbReadOnly.Enabled = false;
-            cbSingleUser.Enabled = false;
-            lbSingleUserName.Enabled = false;
-            tbSingleUserName.Enabled = false;
-            lbMaxQuantity.Enabled = false;
-            cbMaxQuantity.Enabled = false;
-            tbMaxQuantity.Enabled = false;
-            cbCustomStartTime.Enabled = false;
-            dtpCustomStartDate.Enabled = false;
-            dtpCustomStartTime.Enabled = false;
-
-            btnAutoTransferStart.Enabled = false;
-            btnAutoTransferStop.Enabled = true;
-            
-            updateTimer = new System.Timers.Timer(interval);
-            updateTimer.SynchronizingObject = this;
-            updateTimer.Elapsed += new ElapsedEventHandler(doUpdate);
-            updateTimer.Enabled = true;
-
             if (cbCustomStartTime.Checked)
             {
                 DateTime d = dtpCustomStartDate.Value;
@@ -478,32 +216,9 @@ namespace BTCTC
                     btnAutoTransferStop_Click(sender, e);
                     return;
                 }
-
-                lastUpdate = d0;
-                Log("Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine +
-                    "Starting from custom date/time: " + d0.ToString() + Environment.NewLine +
-                    "Running update function to clear back-log" + Environment.NewLine, true);
-
-                doUpdate(this, null);
             }
-            else
-            {
-                TradeHistory t;
 
-                try
-                {
-                    t = b.GetTradeHistory();
-                    lastUpdate = t.orders[t.orders.Count - 1].dateTime;
-                    Log("Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine
-                        + "Most recent entry in trade history at " + lastUpdate.ToString() + " (server time)" + Environment.NewLine, true);
-                }
-                catch (BTCTException ex)
-                {
-                    Log("Error obtaining initial trade history - Timer aborted. Message: " + ex.Message, true);
-                    btnAutoTransferStop_Click(sender, e);
-                    return;
-                }
-            }
+
         } 
 
         private void btnAutoTransferStop_Click(object sender, EventArgs e)
