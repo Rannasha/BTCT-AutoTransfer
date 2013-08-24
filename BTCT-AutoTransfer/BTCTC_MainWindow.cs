@@ -16,25 +16,28 @@ namespace BTCTC
 {
     public partial class BTCTC_MainWindow : Form
     {
-      // BTCT
-        private const string _consumerKey = "20bd6751441ff12b98117f4be1c09a9371de4cf7";
-        private const string _consumerSecret = "0949565dac0d493501a84cbab79a0f9eb6c936a9";
+        // BTCT
+        private const string BconsumerKey = "20bd6751441ff12b98117f4be1c09a9371de4cf7";
+        private const string BconsumerSecret = "0949565dac0d493501a84cbab79a0f9eb6c936a9";
 
         // LTC-Global
-     //   private const string _consumerKey = "e16d295063cb4e22fb6247e2e8b094deef601183";
-     //  private const string _consumerSecret = "0394390ae938a512de7bdd150c693819c9c58a58";
+        private const string LconsumerKey = "e16d295063cb4e22fb6247e2e8b094deef601183";
+        private const string LconsumerSecret = "0394390ae938a512de7bdd150c693819c9c58a58";
 
-        private BTCTLink b;
+        private BTCTLink b, l;
 
         public BTCTC_MainWindow()
         {
             InitializeComponent();
 
-            OnAuthStatusChanged(null, EventArgs.Empty);
+            OnBAuthStatusChanged(null, EventArgs.Empty);
+            OnLAuthStatusChanged(null, EventArgs.Empty);
 
-            // Change 3rd argument to "false" for LTC-Global
-            b = new BTCTLink(_consumerKey, _consumerSecret, true, DebugToTextBox);
-            b.AuthStatusChanged += OnAuthStatusChanged;
+            b = new BTCTLink(BconsumerKey, BconsumerSecret, true, DebugToTextBox);
+            b.AuthStatusChanged += OnBAuthStatusChanged;
+            
+            l = new BTCTLink(LconsumerKey, LconsumerSecret, false, DebugToTextBox);
+            l.AuthStatusChanged += OnLAuthStatusChanged;
         }
 
         private void Log(string s, bool toFile)
@@ -50,12 +53,17 @@ namespace BTCTC
             tbOutput.AppendText(s);
         }
 
-        private void DebugToTextBox(string msg)
+        private void ATLog(string msg)
         {
-   //         Log(msg + Environment.NewLine, true);
+            Log(msg, true);
         }
 
-        private void OnAuthStatusChanged(object sender, EventArgs e)
+        private void DebugToTextBox(string msg)
+        {
+         //   Log(msg, true);
+        }
+
+        private void OnBAuthStatusChanged(object sender, EventArgs e)
         {
             AuthStatusChangedEventArgs ea;
 
@@ -71,58 +79,124 @@ namespace BTCTC
             switch (ea.AuthStatus)
             {
                 case AuthStatusType.AS_NONE:
-                    button1.Enabled = true;
-                    button2.Enabled = false;
-                    textBox3.ReadOnly = true;
-                    textBox2.Text = "None";
+                    tbBConnect.Enabled = true;
+                    tbBAuth.Enabled = false;
+                    tbBVerifier.ReadOnly = true;
+                    tbBAuthStatus.Text = "None";
                     break;
                 case AuthStatusType.AS_REQRCV:
-                    button1.Enabled = true;
-                    button2.Enabled = true;
-                    textBox3.ReadOnly = false;
-                    textBox2.Text = "Req-rcv";
+                    tbBConnect.Enabled = true;
+                    tbBAuth.Enabled = true;
+                    tbBVerifier.ReadOnly = false;
+                    tbBAuthStatus.Text = "Req-rcv";
                     break;
                 case AuthStatusType.AS_OK:
-                    button1.Enabled = false;
-                    button2.Enabled = false;
-                    textBox3.ReadOnly = true;
-                    textBox2.Text = "Authorized";
+                    tbBConnect.Enabled = false;
+                    tbBAuth.Enabled = false;
+                    tbBVerifier.ReadOnly = true;
+                    tbBAuthStatus.Text = "Authorized";
                     break;
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void OnLAuthStatusChanged(object sender, EventArgs e)
+        {
+            AuthStatusChangedEventArgs ea;
+
+            if (e.Equals(EventArgs.Empty))
+            {
+                ea = new AuthStatusChangedEventArgs(AuthStatusType.AS_NONE);
+            }
+            else
+            {
+                ea = (AuthStatusChangedEventArgs)e;
+            }
+
+            switch (ea.AuthStatus)
+            {
+                case AuthStatusType.AS_NONE:
+                    btnLConnect.Enabled = true;
+                    btnLAuth.Enabled = false;
+                    tbLVerifier.ReadOnly = true;
+                    tbLAuthStatus.Text = "None";
+                    break;
+                case AuthStatusType.AS_REQRCV:
+                    btnLConnect.Enabled = true;
+                    btnLAuth.Enabled = true;
+                    tbLVerifier.ReadOnly = false;
+                    tbLAuthStatus.Text = "Req-rcv";
+                    break;
+                case AuthStatusType.AS_OK:
+                    btnLConnect.Enabled = false;
+                    btnLAuth.Enabled = false;
+                    tbLVerifier.ReadOnly = true;
+                    tbLAuthStatus.Text = "Authorized";
+                    break;
+            }
+        }
+
+        #region BTCT Connection/auth button-handlers
+        private void btnBConnect_Click(object sender, EventArgs e)
         {
             b.GetRequestToken();
             MessageBox.Show("After authorizing BTCT-Client in the browser window that just opened, copy/paste the \"oauth_verifier\" into the \"Verifier\" textbox and click \"Authorize\"", "BTCT-Client: Authorization in progress", MessageBoxButtons.OK);
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void btnBAuth_Click(object sender, EventArgs e)
         {
-            b.GetAccessToken(textBox3.Text);
+            b.GetAccessToken(tbBVerifier.Text);
             Portfolio p = b.GetPortfolio();
             b.ApiKey = p.apiKey;
-            textBox1.Text = b.ApiKey;
+            tbBApiKey.Text = b.ApiKey;
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void btnBLoadToken_Click(object sender, EventArgs e)
         {
-            b.DeserializeConfig("btct-client.dat");
-            textBox1.Text = b.ApiKey;
+            b.DeserializeConfig("btct-client_B.dat");
+            tbBApiKey.Text = b.ApiKey;
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void btnBSaveToken_Click(object sender, EventArgs e)
         {
-            b.ApiKey = textBox1.Text;
-            b.SerializeConfig("btct-client.dat");
+            b.ApiKey = tbBApiKey.Text;
+            b.SerializeConfig("btct-client_B.dat");
         }
+        #endregion
+
+        #region LTC-G connection/auth button-handlers
+        private void btnLConnect_Click(object sender, EventArgs e)
+        {
+            l.GetRequestToken();
+            MessageBox.Show("After authorizing BTCT-Client in the browser window that just opened, copy/paste the \"oauth_verifier\" into the \"Verifier\" textbox and click \"Authorize\"", "BTCT-Client: Authorization in progress", MessageBoxButtons.OK);
+        }
+
+        private void btnLAuth_Click(object sender, EventArgs e)
+        {
+            l.GetAccessToken(tbLVerifier.Text);
+            Portfolio p = l.GetPortfolio();
+            l.ApiKey = p.apiKey;
+            tbLApiKey.Text = l.ApiKey;
+        }
+
+        private void btnLLoadToken_Click(object sender, EventArgs e)
+        {
+            l.DeserializeConfig("btct-client_L.dat");
+            tbLApiKey.Text = l.ApiKey;
+        }
+
+        private void btnLSaveToken_Click(object sender, EventArgs e)
+        {
+            l.ApiKey = tbLApiKey.Text;
+            l.SerializeConfig("btct-client_L.dat");
+        }
+        #endregion
 
         #region DMS Auto-Transfer functions
-        System.Timers.Timer updateTimer;
         int interval, maxQuantity;
         bool readOnly, singleUser, qtyLimit;
         string singleUserName;
-        DateTime lastUpdate;
+
+        AutoTransfer aB, aL;
 
         private void cbReadOnly_CheckedChanged(object sender, EventArgs e)
         {
@@ -203,109 +277,53 @@ namespace BTCTC
                 }
             }
 
-            if (cbCustomStartTime.Checked)
+            DateTime d = dtpCustomStartDate.Value;
+            DateTime ti = dtpCustomStartTime.Value;
+
+            DateTime d0 = new DateTime(d.Year, d.Month, d.Day, ti.Hour, ti.Minute, ti.Second);
+
+            if (cbCustomStartTime.Checked && d0.CompareTo(DateTime.Now) > 0)
             {
-                DateTime d = dtpCustomStartDate.Value;
-                DateTime ti = dtpCustomStartTime.Value;
-
-                DateTime d0 = new DateTime(d.Year, d.Month, d.Day, ti.Hour, ti.Minute, ti.Second);
-
-                if (d0.CompareTo(DateTime.Now) > 0)
-                {
-                    Log("Can't select custom starting date/time in the future. Aborting.", false);
-                    btnAutoTransferStop_Click(sender, e);
-                    return;
-                }
+                Log("Can't select custom starting date/time in the future. Aborting.", false);
+                return;
             }
 
+            aB = new AutoTransfer(b, interval);
+            aB.ReadOnly = readOnly;
+            aB.SingleUser = singleUser;
+            aB.SingleUserName = singleUserName;
+            aB.QtyLimit = qtyLimit;
+            aB.MaxQuantity = maxQuantity;
+            aB.Logger = ATLog;
 
+            aL = new AutoTransfer(l, interval);
+            aL.ReadOnly = readOnly;
+            aL.SingleUser = singleUser;
+            aL.SingleUserName = singleUserName;
+            aL.QtyLimit = qtyLimit;
+            aL.MaxQuantity = maxQuantity;
+            aL.Logger = ATLog;
+
+            // DMS.PURCHASE -> DMS.MINING + DMS.SELLING
+            /* TransferRule t1 = new TransferRule(b, "DMS.PURCHASE", "DMS.MINING", 1, 0, true, 1, true);
+            TransferRule t2 = new TransferRule(b, "DMS.PURCHASE", "DMS.SELLING", 1, 0, true, 1, true);
+            aB.AddRule(t1);
+            aB.AddRule(t2);
+            */
+
+            // ASICMINER-PT on LTC-Global
+            TransferRule t1 = new TransferRule(l, "ASICMINER-PT", "TEST-ASICMINER", 1, 1, false, 100, true);
+            aB.AddRule(t1);
+            TransferRule t2 = new TransferRule(b, "TEST-ASICMINER", "ASICMINER-PT", 101, 1, true, 100, false);
+            aL.AddRule(t2);
+
+            aB.StartTimer(cbCustomStartTime.Checked, d0, this);
         } 
 
         private void btnAutoTransferStop_Click(object sender, EventArgs e)
         {
-            bool cs = cbCustomStartTime.Checked;
-
-            updateTimer.Enabled = false;
-
-            lbInterval.Enabled = true;
-            tbInterval.Enabled = true;
-            cbReadOnly.Enabled = true;
-            cbSingleUser.Enabled = !readOnly;
-            lbSingleUserName.Enabled = !readOnly && singleUser;
-            tbSingleUserName.Enabled = !readOnly && singleUser;
-            
-            cbMaxQuantity.Enabled = !readOnly;
-            tbMaxQuantity.Enabled = !readOnly && qtyLimit;
-            lbMaxQuantity.Enabled = !readOnly && qtyLimit;
-
-            cbCustomStartTime.Enabled = true;
-            dtpCustomStartDate.Enabled = cs;
-            dtpCustomStartTime.Enabled = cs;
-
-            btnAutoTransferStart.Enabled = true;
-            btnAutoTransferStop.Enabled = false;
-        }
-
-        private void doUpdate(object sender, ElapsedEventArgs e)
-        {
-            string input = "DMS.PURCHASE";
-            string[] output = { "DMS.MINING", "DMS.SELLING" };
-            
-            Log("Update started at " + DateTime.Now.ToString() + Environment.NewLine, true);
-            
-            TradeHistory t;
-            try
-            {
-                t = b.GetTradeHistory();
-            }
-            catch (BTCTException ex)
-            {
-                Log("Error obtaining trade history. Message: " + ex.Message + Environment.NewLine, true);
-                return;
-            }
-            if (lastUpdate.CompareTo(t.orders[t.orders.Count - 1].dateTime) > 0)
-            {
-                Log("ERROR: Newest order in latest update older than in previous update. Aborting auto-transfer.", true);
-                btnAutoTransferStop_Click(this, e);
-                return;
-            }
-            foreach (Order o in t.orders)
-            {
-                if (o.dateTime.CompareTo(lastUpdate) > 0
-                    && o.orderType == OrderType.OT_TIN
-                    && o.security.name == input)
-                {
-                    int num = o.amount;
-                    string username = o.transferUser;
-                    Log("TX-IN: " + num.ToString() + " x " + o.security.name + " <- " + username + Environment.NewLine, true);
-                    foreach (string s in output)
-                    {
-                        try
-                        {
-                            if (!readOnly)
-                            {
-                                if ( (!singleUser || singleUserName == username) && (!qtyLimit || num <= maxQuantity) )
-                                {
-                                    b.TransferAsset(s, num, username, 0);
-                                }
-                            }
-                            if (readOnly || (singleUser && singleUserName != username) || (qtyLimit && num > maxQuantity))
-                            {
-                                Log("(not executed) ", true);
-                            }
-                            Log("TX-OUT: " + num.ToString() + " x " + s + " -> " + username + Environment.NewLine, true);
-                        }
-                        catch (BTCTException ex)
-                        {
-                            Log("ERROR: " + ex.Message + Environment.NewLine, true);
-                        }
-                    }
-                }
-            }
-
-            lastUpdate = t.orders[t.orders.Count - 1].dateTime;
-            Log("Update completed at " + DateTime.Now.ToString() + Environment.NewLine, true);
-            Log("Most recent trade was at " + t.orders[t.orders.Count - 1].dateTime.ToString() + " (server time)" + Environment.NewLine, true);
+            aB.StopTimer();
+            aL.StopTimer();
         }
         #endregion
     }

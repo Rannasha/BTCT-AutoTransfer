@@ -28,16 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
+            this.tbBConnect = new System.Windows.Forms.Button();
+            this.tbBVerifier = new System.Windows.Forms.TextBox();
+            this.tbBAuth = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.tbOutput = new System.Windows.Forms.TextBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.tbBLoadToken = new System.Windows.Forms.Button();
+            this.tbBSaveToken = new System.Windows.Forms.Button();
+            this.tbBApiKey = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.tbBAuthStatus = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.dtpCustomStartDate = new System.Windows.Forms.DateTimePicker();
@@ -56,47 +56,47 @@
             this.btnAutoTransferStart = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
+            this.tbLApiKey = new System.Windows.Forms.TextBox();
+            this.btnLConnect = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.button6 = new System.Windows.Forms.Button();
+            this.tbLVerifier = new System.Windows.Forms.TextBox();
+            this.tbLAuthStatus = new System.Windows.Forms.TextBox();
+            this.btnLAuth = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
+            this.btnLLoadToken = new System.Windows.Forms.Button();
+            this.btnLSaveToken = new System.Windows.Forms.Button();
             this.groupBox4.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // tbBConnect
             // 
-            this.button1.Location = new System.Drawing.Point(184, 14);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Connect";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.tbBConnect.Location = new System.Drawing.Point(184, 14);
+            this.tbBConnect.Name = "tbBConnect";
+            this.tbBConnect.Size = new System.Drawing.Size(75, 23);
+            this.tbBConnect.TabIndex = 4;
+            this.tbBConnect.Text = "Connect";
+            this.tbBConnect.UseVisualStyleBackColor = true;
+            this.tbBConnect.Click += new System.EventHandler(this.btnBConnect_Click);
             // 
-            // textBox3
+            // tbBVerifier
             // 
-            this.textBox3.Location = new System.Drawing.Point(52, 40);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(124, 20);
-            this.textBox3.TabIndex = 5;
+            this.tbBVerifier.Location = new System.Drawing.Point(52, 40);
+            this.tbBVerifier.Name = "tbBVerifier";
+            this.tbBVerifier.Size = new System.Drawing.Size(124, 20);
+            this.tbBVerifier.TabIndex = 5;
             // 
-            // button2
+            // tbBAuth
             // 
-            this.button2.Location = new System.Drawing.Point(184, 40);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 6;
-            this.button2.Text = "Authorize";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.tbBAuth.Location = new System.Drawing.Point(184, 40);
+            this.tbBAuth.Name = "tbBAuth";
+            this.tbBAuth.Size = new System.Drawing.Size(75, 23);
+            this.tbBAuth.TabIndex = 6;
+            this.tbBAuth.Text = "Authorize";
+            this.tbBAuth.UseVisualStyleBackColor = true;
+            this.tbBAuth.Click += new System.EventHandler(this.btnBAuth_Click);
             // 
             // label3
             // 
@@ -117,32 +117,32 @@
             this.tbOutput.Size = new System.Drawing.Size(476, 306);
             this.tbOutput.TabIndex = 9;
             // 
-            // button4
+            // tbBLoadToken
             // 
-            this.button4.Location = new System.Drawing.Point(264, 14);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 10;
-            this.button4.Text = "Load Token";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.tbBLoadToken.Location = new System.Drawing.Point(264, 14);
+            this.tbBLoadToken.Name = "tbBLoadToken";
+            this.tbBLoadToken.Size = new System.Drawing.Size(75, 23);
+            this.tbBLoadToken.TabIndex = 10;
+            this.tbBLoadToken.Text = "Load Token";
+            this.tbBLoadToken.UseVisualStyleBackColor = true;
+            this.tbBLoadToken.Click += new System.EventHandler(this.btnBLoadToken_Click);
             // 
-            // button5
+            // tbBSaveToken
             // 
-            this.button5.Location = new System.Drawing.Point(264, 40);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 11;
-            this.button5.Text = "Save Token";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.tbBSaveToken.Location = new System.Drawing.Point(264, 40);
+            this.tbBSaveToken.Name = "tbBSaveToken";
+            this.tbBSaveToken.Size = new System.Drawing.Size(75, 23);
+            this.tbBSaveToken.TabIndex = 11;
+            this.tbBSaveToken.Text = "Save Token";
+            this.tbBSaveToken.UseVisualStyleBackColor = true;
+            this.tbBSaveToken.Click += new System.EventHandler(this.btnBSaveToken_Click);
             // 
-            // textBox1
+            // tbBApiKey
             // 
-            this.textBox1.Location = new System.Drawing.Point(52, 16);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(124, 20);
-            this.textBox1.TabIndex = 14;
+            this.tbBApiKey.Location = new System.Drawing.Point(52, 16);
+            this.tbBApiKey.Name = "tbBApiKey";
+            this.tbBApiKey.Size = new System.Drawing.Size(124, 20);
+            this.tbBApiKey.TabIndex = 14;
             // 
             // label1
             // 
@@ -153,14 +153,14 @@
             this.label1.TabIndex = 15;
             this.label1.Text = "API Key";
             // 
-            // textBox2
+            // tbBAuthStatus
             // 
-            this.textBox2.Location = new System.Drawing.Point(260, 68);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(76, 20);
-            this.textBox2.TabIndex = 16;
+            this.tbBAuthStatus.Location = new System.Drawing.Point(260, 68);
+            this.tbBAuthStatus.Margin = new System.Windows.Forms.Padding(2);
+            this.tbBAuthStatus.Name = "tbBAuthStatus";
+            this.tbBAuthStatus.ReadOnly = true;
+            this.tbBAuthStatus.Size = new System.Drawing.Size(76, 20);
+            this.tbBAuthStatus.TabIndex = 16;
             // 
             // label2
             // 
@@ -343,16 +343,16 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.textBox1);
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.tbBApiKey);
+            this.groupBox1.Controls.Add(this.tbBConnect);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.textBox3);
-            this.groupBox1.Controls.Add(this.textBox2);
-            this.groupBox1.Controls.Add(this.button2);
+            this.groupBox1.Controls.Add(this.tbBVerifier);
+            this.groupBox1.Controls.Add(this.tbBAuthStatus);
+            this.groupBox1.Controls.Add(this.tbBAuth);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.button4);
-            this.groupBox1.Controls.Add(this.button5);
+            this.groupBox1.Controls.Add(this.tbBLoadToken);
+            this.groupBox1.Controls.Add(this.tbBSaveToken);
             this.groupBox1.Location = new System.Drawing.Point(8, 4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(348, 96);
@@ -362,16 +362,16 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.textBox4);
-            this.groupBox2.Controls.Add(this.button3);
+            this.groupBox2.Controls.Add(this.tbLApiKey);
+            this.groupBox2.Controls.Add(this.btnLConnect);
             this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.textBox5);
-            this.groupBox2.Controls.Add(this.textBox6);
-            this.groupBox2.Controls.Add(this.button6);
+            this.groupBox2.Controls.Add(this.tbLVerifier);
+            this.groupBox2.Controls.Add(this.tbLAuthStatus);
+            this.groupBox2.Controls.Add(this.btnLAuth);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label6);
-            this.groupBox2.Controls.Add(this.button7);
-            this.groupBox2.Controls.Add(this.button8);
+            this.groupBox2.Controls.Add(this.btnLLoadToken);
+            this.groupBox2.Controls.Add(this.btnLSaveToken);
             this.groupBox2.Location = new System.Drawing.Point(360, 4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(348, 96);
@@ -379,21 +379,22 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "LTC-Global";
             // 
-            // textBox4
+            // tbLApiKey
             // 
-            this.textBox4.Location = new System.Drawing.Point(52, 16);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(124, 20);
-            this.textBox4.TabIndex = 14;
+            this.tbLApiKey.Location = new System.Drawing.Point(52, 16);
+            this.tbLApiKey.Name = "tbLApiKey";
+            this.tbLApiKey.Size = new System.Drawing.Size(124, 20);
+            this.tbLApiKey.TabIndex = 14;
             // 
-            // button3
+            // btnLConnect
             // 
-            this.button3.Location = new System.Drawing.Point(184, 14);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Connect";
-            this.button3.UseVisualStyleBackColor = true;
+            this.btnLConnect.Location = new System.Drawing.Point(184, 14);
+            this.btnLConnect.Name = "btnLConnect";
+            this.btnLConnect.Size = new System.Drawing.Size(75, 23);
+            this.btnLConnect.TabIndex = 4;
+            this.btnLConnect.Text = "Connect";
+            this.btnLConnect.UseVisualStyleBackColor = true;
+            this.btnLConnect.Click += new System.EventHandler(this.btnLConnect_Click);
             // 
             // label4
             // 
@@ -405,30 +406,31 @@
             this.label4.TabIndex = 17;
             this.label4.Text = "Auth status";
             // 
-            // textBox5
+            // tbLVerifier
             // 
-            this.textBox5.Location = new System.Drawing.Point(52, 40);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(124, 20);
-            this.textBox5.TabIndex = 5;
+            this.tbLVerifier.Location = new System.Drawing.Point(52, 40);
+            this.tbLVerifier.Name = "tbLVerifier";
+            this.tbLVerifier.Size = new System.Drawing.Size(124, 20);
+            this.tbLVerifier.TabIndex = 5;
             // 
-            // textBox6
+            // tbLAuthStatus
             // 
-            this.textBox6.Location = new System.Drawing.Point(260, 68);
-            this.textBox6.Margin = new System.Windows.Forms.Padding(2);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.ReadOnly = true;
-            this.textBox6.Size = new System.Drawing.Size(76, 20);
-            this.textBox6.TabIndex = 16;
+            this.tbLAuthStatus.Location = new System.Drawing.Point(260, 68);
+            this.tbLAuthStatus.Margin = new System.Windows.Forms.Padding(2);
+            this.tbLAuthStatus.Name = "tbLAuthStatus";
+            this.tbLAuthStatus.ReadOnly = true;
+            this.tbLAuthStatus.Size = new System.Drawing.Size(76, 20);
+            this.tbLAuthStatus.TabIndex = 16;
             // 
-            // button6
+            // btnLAuth
             // 
-            this.button6.Location = new System.Drawing.Point(184, 40);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 23);
-            this.button6.TabIndex = 6;
-            this.button6.Text = "Authorize";
-            this.button6.UseVisualStyleBackColor = true;
+            this.btnLAuth.Location = new System.Drawing.Point(184, 40);
+            this.btnLAuth.Name = "btnLAuth";
+            this.btnLAuth.Size = new System.Drawing.Size(75, 23);
+            this.btnLAuth.TabIndex = 6;
+            this.btnLAuth.Text = "Authorize";
+            this.btnLAuth.UseVisualStyleBackColor = true;
+            this.btnLAuth.Click += new System.EventHandler(this.btnLAuth_Click);
             // 
             // label5
             // 
@@ -448,23 +450,25 @@
             this.label6.TabIndex = 7;
             this.label6.Text = "Verifier";
             // 
-            // button7
+            // btnLLoadToken
             // 
-            this.button7.Location = new System.Drawing.Point(264, 14);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(75, 23);
-            this.button7.TabIndex = 10;
-            this.button7.Text = "Load Token";
-            this.button7.UseVisualStyleBackColor = true;
+            this.btnLLoadToken.Location = new System.Drawing.Point(264, 14);
+            this.btnLLoadToken.Name = "btnLLoadToken";
+            this.btnLLoadToken.Size = new System.Drawing.Size(75, 23);
+            this.btnLLoadToken.TabIndex = 10;
+            this.btnLLoadToken.Text = "Load Token";
+            this.btnLLoadToken.UseVisualStyleBackColor = true;
+            this.btnLLoadToken.Click += new System.EventHandler(this.btnLLoadToken_Click);
             // 
-            // button8
+            // btnLSaveToken
             // 
-            this.button8.Location = new System.Drawing.Point(264, 40);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(75, 23);
-            this.button8.TabIndex = 11;
-            this.button8.Text = "Save Token";
-            this.button8.UseVisualStyleBackColor = true;
+            this.btnLSaveToken.Location = new System.Drawing.Point(264, 40);
+            this.btnLSaveToken.Name = "btnLSaveToken";
+            this.btnLSaveToken.Size = new System.Drawing.Size(75, 23);
+            this.btnLSaveToken.TabIndex = 11;
+            this.btnLSaveToken.Text = "Save Token";
+            this.btnLSaveToken.UseVisualStyleBackColor = true;
+            this.btnLSaveToken.Click += new System.EventHandler(this.btnLSaveToken_Click);
             // 
             // BTCTC_MainWindow
             // 
@@ -490,16 +494,16 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button tbBConnect;
+        private System.Windows.Forms.TextBox tbBVerifier;
+        private System.Windows.Forms.Button tbBAuth;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox tbOutput;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button tbBLoadToken;
+        private System.Windows.Forms.Button tbBSaveToken;
+        private System.Windows.Forms.TextBox tbBApiKey;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox tbBAuthStatus;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.CheckBox cbReadOnly;
@@ -518,16 +522,16 @@
         private System.Windows.Forms.DateTimePicker dtpCustomStartDate;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.TextBox tbLApiKey;
+        private System.Windows.Forms.Button btnLConnect;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.TextBox tbLVerifier;
+        private System.Windows.Forms.TextBox tbLAuthStatus;
+        private System.Windows.Forms.Button btnLAuth;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Button btnLLoadToken;
+        private System.Windows.Forms.Button btnLSaveToken;
     }
 }
 

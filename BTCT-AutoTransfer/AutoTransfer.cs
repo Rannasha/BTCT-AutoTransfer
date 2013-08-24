@@ -94,7 +94,22 @@ namespace BTCTC
 
         public int Multiplier { get; set; }
         public bool MultInput { get; set; }
-        
+
+        public TransferRule(BTCTLink outLink, string input, string output, int minInput, int fee, bool feeInput, int multiplier, bool multInput)
+        {
+            OutLink = outLink;
+            Input = input;
+            Output = output;
+            MinInput = minInput;
+            Fee = fee;
+            FeeInput = feeInput;
+            Multiplier = multiplier;
+            MultInput = multInput;
+        }
+        public TransferRule()
+        {
+        }
+
         // Examples:
         // 100 shares of A can be exchanged for 1 share of B. A fixed fee of 1
         // share of A applies.
@@ -115,6 +130,56 @@ namespace BTCTC
         // FeeInput = false;
         // Multiplier = 100;
         // MultInput = true;
+
+        public int CalcTransferUnits(int inUnits)
+        {
+            if (inUnits < MinInput)
+            {
+                return 0;
+            }
+
+            int n = inUnits;
+
+            if (FeeInput)
+            {
+                n -= Fee;
+            }
+            if (MultInput)
+            {
+                n *= Multiplier;
+            }
+            else
+            {
+                n /= Multiplier;
+            }
+            if (!FeeInput)
+            {
+                n -= Fee;
+            }
+
+            return n;
+        }
+
+        public int CalcReturnUnits(int inUnits)
+        {
+            if (inUnits < MinInput)
+            {
+                return inUnits;
+            }
+            if (MultInput)
+            {
+                return 0;
+            }
+
+            int n = inUnits % Multiplier;
+
+            if (FeeInput)
+            {
+                n -= Fee;
+            }
+
+            return n;
+        }
     }
 
     class AutoTransfer
@@ -128,7 +193,7 @@ namespace BTCTC
         private DateTime _lastUpdate;
         private System.ComponentModel.ISynchronizeInvoke _syncObj;
 
-        private List<TransferRule> _transferRules;
+        private List<TransferRule> _transferRules = new List<TransferRule>();
         public bool Active
         {
             get
@@ -141,7 +206,6 @@ namespace BTCTC
         public string SingleUserName { get; set; }
         public bool QtyLimit { get; set; }
         public int MaxQuantity { get; set; }
-       
         public int Interval
         {
             get
@@ -273,56 +337,6 @@ namespace BTCTC
             return true;
         }
 
-        private int CalcTransferUnits(TransferRule t, int inUnits)
-        {
-            if (inUnits < t.MinInput)
-            {
-                return 0;
-            }
-
-            int n = inUnits;
-
-            if (t.FeeInput)
-            {
-                n -= t.Fee;
-            }
-            if (t.MultInput)
-            {
-                n *= t.Multiplier;
-            }
-            else
-            {
-                n /= t.Multiplier;
-            }
-            if (!t.FeeInput)
-            {
-                n -= t.Fee;
-            }
-
-            return n;
-        }
-
-        private int CalcReturnUnits(TransferRule t, int inUnits)
-        {
-            if (inUnits < t.MinInput)
-            {
-                return inUnits;
-            }
-            if (t.MultInput)
-            {
-                return 0;
-            }
-
-            int n = inUnits % t.Multiplier;
-
-            if (t.FeeInput)
-            {
-                n -= t.Fee;
-            }
-
-            return n;
-        }
-
         private void DoTransfer(string security, int amount, string username, BTCTLink link)
         {
             if (!isTestMode(username, amount))
@@ -377,8 +391,8 @@ namespace BTCTC
                         continue;
                     }
                     
-                    int numTransfer = CalcTransferUnits(tr, num);
-                    int numReturn = CalcReturnUnits(tr, num);
+                    int numTransfer = tr.CalcTransferUnits(num);
+                    int numReturn = tr.CalcReturnUnits(num);
 
                     string targetUsername = username;
 
@@ -425,7 +439,5 @@ namespace BTCTC
             Log("Update completed at " + DateTime.Now.ToString() + Environment.NewLine);
             Log("Most recent trade was at " + t.orders[t.orders.Count - 1].dateTime.ToString() + " (server time)" + Environment.NewLine);
         }
-
-
     }
 }
