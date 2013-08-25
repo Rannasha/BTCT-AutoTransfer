@@ -291,7 +291,6 @@
             // 
             // btnAutoTransferStop
             // 
-            this.btnAutoTransferStop.Enabled = false;
             this.btnAutoTransferStop.Location = new System.Drawing.Point(88, 196);
             this.btnAutoTransferStop.Name = "btnAutoTransferStop";
             this.btnAutoTransferStop.Size = new System.Drawing.Size(75, 23);

@@ -26,6 +26,8 @@ namespace BTCTC
 
         private BTCTLink b, l;
 
+        private NameDB n;
+
         public BTCTC_MainWindow()
         {
             InitializeComponent();
@@ -152,8 +154,15 @@ namespace BTCTC
 
         private void btnBLoadToken_Click(object sender, EventArgs e)
         {
-            b.DeserializeConfig("btct-client_B.dat");
-            tbBApiKey.Text = b.ApiKey;
+            try
+            {
+                b.DeserializeConfig("btct-client_B.dat");
+                tbBApiKey.Text = b.ApiKey;
+            }
+            catch (Exception ex)
+            {
+                Log("Error: " + ex.Message + Environment.NewLine, false);
+            }
         }
 
         private void btnBSaveToken_Click(object sender, EventArgs e)
@@ -180,8 +189,15 @@ namespace BTCTC
 
         private void btnLLoadToken_Click(object sender, EventArgs e)
         {
-            l.DeserializeConfig("btct-client_L.dat");
-            tbLApiKey.Text = l.ApiKey;
+            try
+            {
+                l.DeserializeConfig("btct-client_L.dat");
+                tbLApiKey.Text = l.ApiKey;
+            }
+            catch (Exception ex)
+            {
+                Log("Error: " + ex.Message + Environment.NewLine, false);
+            }
         }
 
         private void btnLSaveToken_Click(object sender, EventArgs e)
@@ -246,7 +262,7 @@ namespace BTCTC
             }
             try
             {
-                interval = Convert.ToInt32(tbInterval.Text);
+                interval = Convert.ToInt32(tbInterval.Text) * 60000;
             }
             catch (Exception ex)
             {
@@ -304,6 +320,18 @@ namespace BTCTC
             aL.MaxQuantity = maxQuantity;
             aL.Logger = ATLog;
 
+            // TransferRule constructor arguments
+            //      - account performing transfers (BTCTLink object, in this code either 'b' or 'l')
+            //      - asset to be transferred in by users
+            //      - asset to be transferred out
+            //      - minimum number of input units (anything less is returned)
+            //      - fixed fee deducted from number of units
+            //      - true = fee is deducted from input units. False = fee deducted from output units
+            //      - multiplier between input and output
+            //      - true = input is multiplied to obtain output. False = input is divided by multiplier to obtain output (remainder is returned)
+
+            // Make sure to add each rule to the correct AutoTransfer object. In this code, aB monitors the BTC-TC account, aL monitors LTC-Global.
+            
             // DMS.PURCHASE -> DMS.MINING + DMS.SELLING
             /* TransferRule t1 = new TransferRule(b, "DMS.PURCHASE", "DMS.MINING", 1, 0, true, 1, true);
             TransferRule t2 = new TransferRule(b, "DMS.PURCHASE", "DMS.SELLING", 1, 0, true, 1, true);
@@ -312,12 +340,45 @@ namespace BTCTC
             */
 
             // ASICMINER-PT on LTC-Global
-            TransferRule t1 = new TransferRule(l, "ASICMINER-PT", "TEST-ASICMINER", 1, 1, false, 100, true);
+            /* TransferRule t1 = new TransferRule(l, "ASICMINER-PT", "TEST-ASICMINER", 1, 1, false, 100, true);
             aB.AddRule(t1);
             TransferRule t2 = new TransferRule(b, "TEST-ASICMINER", "ASICMINER-PT", 101, 1, true, 100, false);
             aL.AddRule(t2);
+            */
 
+            // LTC-G & BTC-TC "HIGH / LOW" fund
+            /* TransferRule t1 = new TransferRule(l, "BTC-HIGH", "LTC-HIGH", 2, 1, true, 1, true);
+            TransferRule t2 = new TransferRule(l, "BTC-LOW", "LTC-LOW", 2, 1, true, 1, true);
+            aB.AddRule(t1);
+            aB.AddRule(t2);
+            TransferRule t3 = new TransferRule(b, "LTC-HIGH", "BTC-HIGH", 2, 1, true, 1, true);
+            TransferRule t4 = new TransferRule(b, "LTC-LOW", "BTC-LOW", 2, 1, true, 1, true);
+            aL.AddRule(t3);
+            aL.AddRule(t4); */
+
+            // For test-purposes
+            TransferRule t1 = new TransferRule(b, "DMS.SELLING", "BTC-GROWTH", 1, 0, true, 1, true);
+            TransferRule t2 = new TransferRule(b, "DMS.SELLING", "TAT.ASICMINER", 1, 0, true, 1, true);
+            aB.AddRule(t1);
+            aB.AddRule(t2);
+
+            // Read in a file with BTC-TC <-> LTC-Global username pairs.
+            // Each line has 1 pair of usernames, BTC-TC first, followed by whitespace, followed by LTC-Global.
+            // Comment out this section if no cross-exchange transfers are done.
+            try
+            {
+                AutoTransfer.ReadNameDB("namedb.txt");
+            }
+            catch (Exception ex)
+            {
+                Log("Error: " + ex.Message + Environment.NewLine, false);
+                return;
+            }
+                
+
+            // Add/remove comments below depending on which account is being monitored.
             aB.StartTimer(cbCustomStartTime.Checked, d0, this);
+            aL.StartTimer(cbCustomStartTime.Checked, d0, this);
         } 
 
         private void btnAutoTransferStop_Click(object sender, EventArgs e)

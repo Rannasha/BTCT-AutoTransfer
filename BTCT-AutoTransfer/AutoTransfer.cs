@@ -23,7 +23,7 @@ namespace BTCTC
 
     class NameDB
     {
-        private List<NameLink> _names;
+        private List<NameLink> _names = new List<NameLink>();
 
         public NameLink this[int pos]
         {
@@ -192,6 +192,7 @@ namespace BTCTC
         private BTCTLink _inLink;
         private DateTime _lastUpdate;
         private System.ComponentModel.ISynchronizeInvoke _syncObj;
+        private string _sitePrefix;
 
         private List<TransferRule> _transferRules = new List<TransferRule>();
         public bool Active
@@ -248,10 +249,25 @@ namespace BTCTC
             _active = false;
 
             _nameDB = new NameDB();
+
+            if (_inLink.isBTCT)
+            {
+                _sitePrefix = "(B) ";
+            }
+            else
+            {
+                _sitePrefix = "(L) ";
+            }
         }
         public AutoTransfer(BTCTLink inLink, int interval, string nameFile) : this(inLink, interval)
         {
             _nameDB.LoadFromFile(nameFile);
+        }
+
+        static public void ReadNameDB(string filename)
+        {
+            _nameDB = new NameDB();
+            _nameDB.LoadFromFile(filename);
         }
 
         public void Log(string msg)
@@ -269,6 +285,11 @@ namespace BTCTC
 
         public void StartTimer(bool customStart, DateTime start, System.ComponentModel.ISynchronizeInvoke s)
         {
+            if (_active)
+            {
+                Log("Attempt to start timer that is already running." + Environment.NewLine);
+                return;
+            }
             if (_inLink.AuthStatus != AuthStatusType.AS_OK)
             {
                 Log("Not yet authorized." + Environment.NewLine);
@@ -291,7 +312,7 @@ namespace BTCTC
             if (customStart)
             {
                 _lastUpdate = start;
-                Log("Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine +
+                Log(_sitePrefix + "Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine +
                     "Starting from custom date/time: " + start.ToString() + Environment.NewLine +
                     "Running update function to clear back-log" + Environment.NewLine);
 
@@ -305,12 +326,12 @@ namespace BTCTC
                 {
                     t = _inLink.GetTradeHistory();
                     _lastUpdate = t.orders[t.orders.Count - 1].dateTime;
-                    Log("Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine
-                        + "Most recent entry in trade history at " + _lastUpdate.ToString() + " (server time)" + Environment.NewLine);
+                    Log(_sitePrefix + "Starting auto-transfer at " + DateTime.Now.ToString() + Environment.NewLine
+                        + _sitePrefix + "Most recent entry in trade history at " + _lastUpdate.ToString() + " (server time)" + Environment.NewLine);
                 }
                 catch (BTCTException ex)
                 {
-                    Log("Error obtaining initial trade history - Timer aborted. Message: " + ex.Message + Environment.NewLine);
+                    Log(_sitePrefix + "Error obtaining initial trade history - Timer aborted. Message: " + ex.Message + Environment.NewLine);
                     StopTimer();
                     return;
                 }
@@ -319,10 +340,12 @@ namespace BTCTC
 
         public void StopTimer()
         {
-            _timer.Enabled = false;
-            _active = false;
-
-            Log("Auto-transfer stopped at " + DateTime.Now.ToString() + Environment.NewLine);
+            if (_active)
+            {
+                Log(_sitePrefix + "Auto-transfer stopped at " + DateTime.Now.ToString() + Environment.NewLine);
+                _timer.Enabled = false;
+                _active = false;
+            }
         }
 
         private bool isTestMode(string username, int num)
@@ -352,7 +375,7 @@ namespace BTCTC
 
         private void DoUpdate(object sender, ElapsedEventArgs e)
         {
-            Log("Update started at " + DateTime.Now.ToString() + Environment.NewLine);
+            Log(_sitePrefix + "Update started at " + DateTime.Now.ToString() + Environment.NewLine);
 
             TradeHistory t;
             try
@@ -361,12 +384,12 @@ namespace BTCTC
             }
             catch (BTCTException ex)
             {
-                Log("Error obtaining trade history. Message: " + ex.Message + Environment.NewLine);
+                Log(_sitePrefix + "Error obtaining trade history. Message: " + ex.Message + Environment.NewLine);
                 return;
             }
             if (_lastUpdate.CompareTo(t.orders[t.orders.Count - 1].dateTime) > 0)
             {
-                Log("ERROR: Newest order in latest update older than in previous update. Aborting auto-transfer.");
+                Log(_sitePrefix + "ERROR: Newest order in latest update older than in previous update. Aborting auto-transfer.");
                 StopTimer(); 
                 return;
             }
@@ -380,7 +403,7 @@ namespace BTCTC
                 
                 int num = o.amount;
                 string username = o.transferUser;
-                
+
                 Log("TX-IN: " + num.ToString() + " x " + o.security.name + " <- " + username + Environment.NewLine);
 
                 foreach (TransferRule tr in _transferRules)
@@ -404,6 +427,7 @@ namespace BTCTC
                         // No matching user was found - return all shares
                         if (targetUsername == "")
                         {
+                            Log("User \"" + username + "\" has no matching username in name-db." + Environment.NewLine);
                             numTransfer = 0;
                             numReturn = num;
                         }
@@ -436,8 +460,8 @@ namespace BTCTC
             }
 
             _lastUpdate = t.orders[t.orders.Count - 1].dateTime;
-            Log("Update completed at " + DateTime.Now.ToString() + Environment.NewLine);
-            Log("Most recent trade was at " + t.orders[t.orders.Count - 1].dateTime.ToString() + " (server time)" + Environment.NewLine);
+            Log(_sitePrefix + "Update completed at " + DateTime.Now.ToString() + Environment.NewLine);
+            Log(_sitePrefix + "Most recent trade was at " + t.orders[t.orders.Count - 1].dateTime.ToString() + " (server time)" + Environment.NewLine);
         }
     }
 }
